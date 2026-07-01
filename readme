@@ -1,0 +1,414 @@
+# 🏡 EstateHub API
+
+A full-featured **Real Estate Management REST API** built with **Node.js**, **Express**, **TypeScript**, and **MongoDB**. The system supports customers, agents, and administrators with authentication, property management, bookings, payments, messaging, notifications, analytics, and more.
+
+---
+
+# 🚀 Features
+
+## 🔐 Authentication
+
+* User Registration & Login
+* JWT Authentication
+* Role-based Authorization (Admin, Agent, Customer)
+* Password Hashing using bcrypt
+* Protected Routes
+
+---
+
+## 🏠 Property Management
+
+* Create Property
+* Update Property
+* Delete Property
+* Get All Properties
+* Get Property Details
+* Property Search & Filtering
+* Property Approval System
+* Image Upload (Cloudinary)
+* Property Categories
+* Property Views Counter
+
+---
+
+## ❤️ Wishlist
+
+* Add Property to Wishlist
+* Remove Property from Wishlist
+* Get User Wishlist
+
+---
+
+## 📅 Booking System
+
+* Create Booking Request
+* Approve Booking
+* Reject Booking
+* Cancel Booking
+* Complete Booking
+
+---
+
+## ⭐ Reviews & Ratings
+
+* Add Review
+* Property Rating Calculation
+* Average Rating Updates Automatically
+
+---
+
+## 💬 Messaging
+
+* Real-time Chat using Socket.IO
+* Buyer ↔ Agent Conversations
+* Message Read Status
+* Unread Messages Count
+* Typing Indicator
+
+---
+
+## 🔔 Notifications
+
+* Real-time Notifications
+* Booking Notifications
+* Payment Notifications
+* Property Approval Notifications
+* Mark Notification as Read
+* Notification History
+
+---
+
+## 💳 Payments
+
+* Stripe Checkout
+* Booking Payments
+* Agent Subscription Payments
+* Payment History
+* Stripe Webhook Integration
+
+---
+
+## 📦 Subscription Plans
+
+* Free Plan
+* Pro Plan
+* Premium Plan
+* Active Subscription
+* Cancel Subscription
+
+---
+
+## 📊 Admin Dashboard
+
+* Dashboard Statistics
+* User Management
+* Property Approval
+* Category Management
+* Revenue Statistics
+* User Growth Analytics
+* Monthly Revenue
+* Monthly Bookings
+* Top Agents
+* Top Properties
+
+---
+
+## 👨‍💼 Agent Dashboard
+
+* Total Properties
+* Pending Bookings
+* Completed Bookings
+* Earnings
+* Unread Messages
+
+---
+
+# 🛠 Tech Stack
+
+* Node.js
+* Express.js
+* TypeScript
+* MongoDB
+* Mongoose
+* JWT
+* Socket.IO
+* Stripe
+* Cloudinary
+* Nodemailer
+* Zod Validation
+
+---
+
+# 📁 Project Structure
+
+```text
+backend
+│
+├── config/
+├── lib/
+├── middleware/
+├── models/
+├── router/
+├── services/
+├── type/
+├── uploads/
+├── validation/
+├── app.ts
+└── package.json
+```
+
+---
+
+# ⚙️ Installation
+
+Clone the repository
+
+```bash
+git clone https://github.com/your-username/estatehub-api.git
+
+cd estatehub-api
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Create a `.env` file
+
+```env
+PORT=5000
+
+MONGODB_URI=
+
+JWT_SECRET=
+
+CLIENT_URL=http://localhost:3000
+
+CLOUDINARY_CLOUD_NAME=
+
+CLOUDINARY_API_KEY=
+
+CLOUDINARY_API_SECRET=
+
+EMAIL_USER=
+
+EMAIL_PASS=
+
+OPENAI_API_KEY=
+
+STRIPE_SECRET_KEY=
+
+STRIPE_WEBHOOK_SECRET=
+```
+
+Run development server
+
+```bash
+npm run dev
+```
+
+Build project
+
+```bash
+npm run build
+```
+
+Run production
+
+```bash
+npm start
+```
+
+---
+
+# 📡 API Endpoints
+
+## Authentication
+
+```
+POST   /user/register
+POST   /user/login
+GET    /user/profile
+PATCH  /user/profile
+```
+
+---
+
+## Properties
+
+```
+POST    /property
+GET     /property
+GET     /property/:id
+PATCH   /property/:id
+DELETE  /property/:id
+```
+
+---
+
+## Categories
+
+```
+GET     /category
+POST    /category
+PATCH   /category/:id
+DELETE  /category/:id
+```
+
+---
+
+## Bookings
+
+```
+POST    /booking
+GET     /booking
+PATCH   /booking/:id
+DELETE  /booking/:id
+```
+
+---
+
+## Reviews
+
+```
+POST   /review
+GET    /review/property/:propertyId
+PATCH  /review/:id
+DELETE /review/:id
+```
+
+---
+
+## Messages
+
+```
+POST   /message
+GET    /message/:userId
+GET    /message/unread/count
+PATCH  /message/:id/read
+```
+
+---
+
+## Notifications
+
+```
+GET    /notification
+GET    /notification/unread
+PATCH  /notification/:id/read
+PATCH  /notification/read-all
+```
+
+---
+
+## Payments
+
+```
+POST   /payment/booking/:bookingId
+POST   /payment/subscription
+POST   /payment/webhook
+GET    /payment/history
+GET    /payment/:id
+```
+
+---
+
+## Subscriptions
+
+```
+GET    /subscription/plans
+POST   /subscription
+GET    /subscription/me
+PATCH  /subscription/cancel
+```
+
+---
+
+## Admin
+
+```
+GET    /admin/dashboard
+GET    /analytics/admin
+```
+
+---
+
+## Agent
+
+```
+GET    /agent/dashboard
+```
+
+---
+
+# 🔌 Socket.IO Events
+
+## Client → Server
+
+```
+join
+typing
+stopTyping
+messageRead
+```
+
+## Server → Client
+
+```
+newMessage
+newNotification
+typing
+stopTyping
+messageRead
+```
+
+---
+
+# 🔒 Roles
+
+| Role     | Permissions                                    |
+| -------- | ---------------------------------------------- |
+| Admin    | Full System Access                             |
+| Agent    | Manage Properties, Bookings, Messages          |
+| Customer | Browse Properties, Bookings, Reviews, Payments |
+
+---
+
+# 🚀 Deployment
+
+The application can be deployed on:
+
+* Railway
+* Render
+* VPS
+* Docker
+
+Database:
+
+* MongoDB Atlas
+
+Media Storage:
+
+* Cloudinary
+
+Payments:
+
+* Stripe
+
+---
+
+# 👨‍💻 Author
+
+Developed by **Your Name**
+
+GitHub: https://github.com/your-username
+
+LinkedIn: https://linkedin.com/in/your-profile
+
+---
+
+# 📄 License
+
+This project is licensed under the MIT License.
