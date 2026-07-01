@@ -6,7 +6,7 @@ import express from "express";
 import { UserRole } from "../type/user";
 import {
   addPropertySchema,
-//   updatePropertyApprovalSchema,
+  //   updatePropertyApprovalSchema,
   updatePropertySchema,
 } from "../validations/property.validation";
 import {

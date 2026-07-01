@@ -164,74 +164,32 @@ backend
 Clone the repository
 
 ```bash
-git clone https://github.com/your-username/estatehub-api.git
+git clone https://github.com/Reem99-sina/estatehub-api
 
 cd estatehub-api
 ```
-
-Install dependencies
-
-```bash
-npm install
-```
-
-Create a `.env` file
-
-```env
-PORT=5000
-
-MONGODB_URI=
-
-JWT_SECRET=
-
-CLIENT_URL=http://localhost:3000
-
-CLOUDINARY_CLOUD_NAME=
-
-CLOUDINARY_API_KEY=
-
-CLOUDINARY_API_SECRET=
-
-EMAIL_USER=
-
-EMAIL_PASS=
-
-OPENAI_API_KEY=
-
-STRIPE_SECRET_KEY=
-
-STRIPE_WEBHOOK_SECRET=
-```
-
-Run development server
-
-```bash
-npm run dev
-```
-
-Build project
-
-```bash
-npm run build
-```
-
-Run production
-
-```bash
-npm start
-```
-
----
 
 # 📡 API Endpoints
 
 ## Authentication
 
 ```
-POST   /user/register
-POST   /user/login
-GET    /user/profile
-PATCH  /user/profile
+POST   /user/signup
+POST   /user/signin
+POST   /user/verify-email
+POST   /user/forgot-password
+POST   /user/reset-password
+POST   /user/favorites/:propertyId
+POST   /user/recently-viewed/:propertyId
+DELETE  /user/favorites/:propertyId
+GET    /user/me
+GET    /user/favorites
+GET    /user/preferences
+GET    /user/recently-viewed
+GET    /user/dashboard
+GET    /user/analytics/admin
+GET    /user/analytics/agent
+PATCH  /user/preferences
 ```
 
 ---
@@ -242,7 +200,10 @@ PATCH  /user/profile
 POST    /property
 GET     /property
 GET     /property/:id
-PATCH   /property/:id
+GET     /property/admin
+GET     /property/compare
+PATCH   /property/:propertyId
+PATCH   /property/:propertyId/approval
 DELETE  /property/:id
 ```
 
@@ -264,8 +225,11 @@ DELETE  /category/:id
 ```
 POST    /booking
 GET     /booking
-PATCH   /booking/:id
-DELETE  /booking/:id
+GET     /booking/agent/calendar
+GET     /booking/bookings
+GET     /booking/:propertyId/bookings
+PATCH   /booking/:bookingId/status
+DELETE  /booking/:bookingId
 ```
 
 ---
@@ -329,18 +293,10 @@ PATCH  /subscription/cancel
 ## Admin
 
 ```
-GET    /admin/dashboard
+GET    /user/dashboard
 GET    /analytics/admin
+GET    /analytics/agent
 ```
-
----
-
-## Agent
-
-```
-GET    /agent/dashboard
-```
-
 ---
 
 # 🔌 Socket.IO Events
@@ -363,7 +319,6 @@ typing
 stopTyping
 messageRead
 ```
-
 ---
 
 # 🔒 Roles
@@ -376,39 +331,10 @@ messageRead
 
 ---
 
-# 🚀 Deployment
-
-The application can be deployed on:
-
-* Railway
-* Render
-* VPS
-* Docker
-
-Database:
-
-* MongoDB Atlas
-
-Media Storage:
-
-* Cloudinary
-
-Payments:
-
-* Stripe
-
----
-
 # 👨‍💻 Author
 
-Developed by **Your Name**
+Developed by **Reem Ebrahim**
 
-GitHub: https://github.com/your-username
-
-LinkedIn: https://linkedin.com/in/your-profile
+GitHub: https://github.com/Reem99-sina/estatehub-api
 
 ---
-
-# 📄 License
-
-This project is licensed under the MIT License.
