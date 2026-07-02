@@ -24,6 +24,9 @@ export const verifyEmailSchema = z.object({
 
   code: z.number().min(6),
 });
+export const resendCodeSchema = z.object({
+  email: z.string().trim().email(),
+});
 
 export const forgotPasswordSchema = z.object({
   email: z.string().trim().email("Invalid email address"),

@@ -13,6 +13,7 @@ import {
   getPreferences,
   getRecentlyViewed,
   removeFromFavorites,
+  resendCode,
   resetPassword,
   signin,
   signup,
@@ -23,6 +24,7 @@ import { UserRole } from "../type/user";
 import {
   forgotPasswordSchema,
   propertyIdSchema,
+  resendCodeSchema,
   resetPasswordSchema,
   signinSchema,
   signupSchema,
@@ -42,6 +44,8 @@ router.post(
 router.post("/signin", validate(signinSchema), signin);
 
 router.post("/verify-email", validate(verifyEmailSchema), verifyEmail);
+router.post("/resend-verification", validate(resendCodeSchema), resendCode);
+
 router.post("/forgot-password", validate(forgotPasswordSchema), forgotPassword);
 
 router.post("/reset-password", validate(resetPasswordSchema), resetPassword);

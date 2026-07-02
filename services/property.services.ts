@@ -407,6 +407,114 @@ export const getProperties = async (req: request, res: Response) => {
   }
 };
 
+export const getFeaturedProperties = async (req: request, res: Response) => {
+  try {
+    const {
+      city,
+      purpose,
+      category,
+      minPrice,
+      maxPrice,
+      bedrooms,
+      bathrooms,
+      page = "1",
+      limit = "10",
+      sort = "newest",
+    } = req.query;
+
+    const filter: any = {
+      isApproved: false,
+    };
+
+    if (city) {
+      filter.city = {
+        $regex: city,
+        $options: "i",
+      };
+    }
+
+    if (purpose) {
+      filter.purpose = purpose;
+    }
+
+    if (category) {
+      filter.category = category;
+    }
+
+    if (bedrooms) {
+      filter.bedrooms = {
+        $gte: Number(bedrooms),
+      };
+    }
+
+    if (bathrooms) {
+      filter.bathrooms = {
+        $gte: Number(bathrooms),
+      };
+    }
+
+    if (minPrice || maxPrice) {
+      filter.price = {};
+
+      if (minPrice) filter.price.$gte = Number(minPrice);
+
+      if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+
+    let sortOption: any = {};
+
+    switch (sort) {
+      case "price_asc":
+        sortOption.price = 1;
+        break;
+
+      case "price_desc":
+        sortOption.price = -1;
+        break;
+
+      case "oldest":
+        sortOption.createdAt = 1;
+        break;
+
+      case "most_viewed":
+        sortOption.viewsCount = -1;
+        break;
+
+      case "highest_rated":
+        sortOption.averageRating = -1;
+        break;
+
+      default:
+        sortOption.createdAt = -1;
+    }
+
+    const currentPage = Number(page);
+    const pageSize = Number(limit);
+
+    const total = await Property.countDocuments(filter);
+
+    const properties = await Property.find(filter)
+      .populate("owner", "name avatar")
+      .populate("category", "name")
+      .sort(sortOption)
+      .skip((currentPage - 1) * pageSize)
+      .limit(pageSize);
+
+    return res.json({
+      success: true,
+      total,
+      page: currentPage,
+      pages: Math.ceil(total / pageSize),
+      data: properties,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export const compareProperties = async (req: Request, res: Response) => {
   try {
     const ids = (req.query.ids as string)?.split(",");

@@ -2,9 +2,8 @@ import mongoose from "mongoose";
 import Review from "../models/review.model";
 import Property from "../models/property.model";
 
-
 export const updatePropertyRating = async (
-  propertyId: mongoose.Types.ObjectId
+  propertyId: mongoose.Types.ObjectId,
 ) => {
   const stats = await Review.aggregate([
     {
@@ -15,12 +14,8 @@ export const updatePropertyRating = async (
     {
       $group: {
         _id: "$property",
-        averageRating: {
-          $avg: "$rating",
-        },
-        totalReviews: {
-          $sum: 1,
-        },
+        averageRating: { $avg: "$rating" },
+        totalReviews: { $sum: 1 },
       },
     },
   ]);
@@ -29,13 +24,18 @@ export const updatePropertyRating = async (
     await Property.findByIdAndUpdate(propertyId, {
       averageRating: 0,
       totalReviews: 0,
+      featured: false,
     });
 
     return;
   }
 
+  const averageRating = Number(stats[0].averageRating.toFixed(1));
+  const totalReviews = stats[0].totalReviews;
+
   await Property.findByIdAndUpdate(propertyId, {
-    averageRating: Number(stats[0].averageRating.toFixed(1)),
-    totalReviews: stats[0].totalReviews,
+    averageRating,
+    totalReviews,
+    featured: averageRating >= 4.8,
   });
 };

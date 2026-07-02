@@ -15,21 +15,39 @@ import { BookingStatus } from "../type/booking";
 export const signup = async (req: Request, res: Response) => {
   try {
     const { name, email, password, role } = req.body;
-    // console.log(req.destination,'destination')
-    const avatar = req.file ? `uploads/avatars/${req.file.filename}` : "";
+    const avatar = req.file
+      ? `uploads/avatars/${req.file.filename}`
+      : "";
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return res.status(409).json({
-        success: false,
-        message: "Email already exists",
+      if (existingUser.isVerified) {
+        return res.status(409).json({
+          success: false,
+          message: "Email already exists",
+        });
+      }
+
+      // User exists but isn't verified
+      const code = generateCode();
+
+      existingUser.verifyCode = code;
+      await existingUser.save();
+
+      await sendVerificationEmail(existingUser.email, code);
+
+      return res.status(200).json({
+        success: true,
+        needVerify: true,
+        email: existingUser.email,
+        message:
+          "Your account already exists but isn't verified. We've sent a new verification code.",
       });
     }
+
     const code = generateCode();
 
-    // Create user
     const user = await User.create({
       name,
       email,
@@ -39,14 +57,17 @@ export const signup = async (req: Request, res: Response) => {
       verifyCode: code,
       isVerified: false,
     });
+
     await sendVerificationEmail(user.email, code);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      message: "User created successfully, verify your email",
+      needVerify: true,
+      email: user.email,
+      message: "User created successfully. Please verify your email.",
     });
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
@@ -105,6 +126,47 @@ export const signin = async (req: Request, res: Response) => {
       success: true,
       token,
       user,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const resendCode = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    if (user.blocked) {
+      return res.status(403).json({
+        success: false,
+        message: "Your account is blocked",
+      });
+    }
+
+    if (user.isVerified) {
+      return res.status(403).json({
+        success: false,
+        message: "Your email is already verified",
+      });
+    } else {
+      await sendVerificationEmail(user.email, user?.verifyCode);
+    }
+
+    res.json({
+      success: true,
+      message: "Verification code resent successfully",
     });
   } catch (error: any) {
     res.status(500).json({
@@ -513,11 +575,7 @@ export const getAdminDashboard = async (req: request, res: Response) => {
   }
 };
 
-
-export const getAdminAnalytics = async (
-  req: request,
-  res: Response
-) => {
+export const getAdminAnalytics = async (req: request, res: Response) => {
   try {
     const [
       totalRevenue,
@@ -725,11 +783,7 @@ export const getAdminAnalytics = async (
   }
 };
 
-
-export const getAgentDashboard = async (
-  req: request,
-  res: Response
-) => {
+export const getAgentDashboard = async (req: request, res: Response) => {
   try {
     const agentId = req.user!._id;
 
