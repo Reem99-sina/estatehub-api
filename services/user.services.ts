@@ -23,8 +23,10 @@ export const signup = async (req: Request, res: Response) => {
     if (existingUser) {
       // Delete uploaded avatar
       if (req.file) {
-        console.log(req.file.path,'req.file.path')
-        fs.unlink(req.file.path,(res)=>{console.log(res,'res')})
+        console.log(req.file.path, "req.file.path");
+        fs.unlink(req.file.path, (res) => {
+          console.log(res, "res");
+        });
       }
 
       if (existingUser.isVerified) {
@@ -39,7 +41,7 @@ export const signup = async (req: Request, res: Response) => {
       existingUser.verifyCode = code;
       existingUser.isVerified = false;
 
-      await existingUser.save()
+      await existingUser.save();
 
       await sendVerificationEmail(existingUser.email, code);
 
@@ -63,7 +65,6 @@ export const signup = async (req: Request, res: Response) => {
       verifyCode: code,
       isVerified: false,
     });
-
     await sendVerificationEmail(user.email, code);
 
     return res.status(201).json({
@@ -75,7 +76,7 @@ export const signup = async (req: Request, res: Response) => {
   } catch (error: any) {
     // Delete uploaded file if something failed after upload
     if (req.file) {
-      await fs.unlink(req.file.path,()=>{});
+      await fs.unlink(req.file.path, () => {});
     }
 
     return res.status(500).json({
@@ -133,13 +134,13 @@ export const signin = async (req: Request, res: Response) => {
       },
     );
 
-    res.json({
+    return res.json({
       success: true,
       token,
       user,
     });
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
@@ -175,12 +176,12 @@ export const resendCode = async (req: Request, res: Response) => {
       await sendVerificationEmail(user.email, user?.verifyCode);
     }
 
-    res.json({
+    return res.json({
       success: true,
       message: "Verification code resent successfully",
     });
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
@@ -219,12 +220,12 @@ export const verifyEmail = async (req: Request, res: Response) => {
 
     await user.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Email verified successfully",
     });
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
@@ -254,12 +255,12 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     await sendVerificationEmail(user.email, code);
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Password reset code has been sent to your email.",
     });
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
@@ -292,13 +293,13 @@ export const resetPassword = async (req: Request, res: Response) => {
     await user.save();
 
     // return res.success("Password reset successfully.");
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Password reset successfully.",
     });
   } catch (error: any) {
     // return res.error(error.message, error, 500);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
