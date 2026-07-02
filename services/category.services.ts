@@ -44,7 +44,7 @@ export const createCategory = async (req: request, res: Response) => {
       data: category,
     });
   } catch (error) {
-    console.error(error);
+    console.log(error);
 
     return res.status(500).json({
       success: false,

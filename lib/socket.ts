@@ -92,6 +92,6 @@ async function updateUserStatus(
       lastSeen: new Date(),
     });
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 }

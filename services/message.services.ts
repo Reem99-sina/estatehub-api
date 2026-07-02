@@ -41,7 +41,7 @@ export const messageAdd = async (req: request, res: Response) => {
       data: newMessage,
     });
   } catch (error) {
-    console.error(error);
+    console.log(error);
 
     return res.status(500).json({
       success: false,
@@ -78,7 +78,7 @@ export const getConversation = async (req: request, res: Response) => {
       data: messages,
     });
   } catch (error) {
-    console.error(error);
+    console.log(error);
 
     return res.status(500).json({
       success: false,
@@ -111,7 +111,7 @@ export const markMessageAsRead = async (req: request, res: Response) => {
       data: message,
     });
   } catch (error) {
-    console.error(error);
+    console.log(error);
 
     return res.status(500).json({
       success: false,
@@ -132,7 +132,7 @@ export const getUnreadCount = async (req: request, res: Response) => {
       unread: count,
     });
   } catch (error) {
-    console.error(error);
+    console.log(error);
 
     return res.status(500).json({
       success: false,

@@ -4,7 +4,6 @@ import { validate } from "../middleware/validate";
 import {
   addRecentlyViewed,
   addToFavorites,
-  
   forgotPassword,
   getAdminAnalytics,
   getAdminDashboard,

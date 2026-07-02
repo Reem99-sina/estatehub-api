@@ -23,7 +23,8 @@ export const signup = async (req: Request, res: Response) => {
     if (existingUser) {
       // Delete uploaded avatar
       if (req.file) {
-        await fs.unlink(req.file.path,()=>{})
+        console.log(req.file.path,'req.file.path')
+        fs.unlink(req.file.path,(res)=>{console.log(res,'res')})
       }
 
       if (existingUser.isVerified) {
@@ -38,7 +39,7 @@ export const signup = async (req: Request, res: Response) => {
       existingUser.verifyCode = code;
       existingUser.isVerified = false;
 
-      await existingUser.save();
+      await existingUser.save()
 
       await sendVerificationEmail(existingUser.email, code);
 
@@ -576,7 +577,7 @@ export const getAdminDashboard = async (req: request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error(error);
+    console.log(error);
 
     return res.status(500).json({
       success: false,
@@ -784,7 +785,7 @@ export const getAdminAnalytics = async (req: request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error(error);
+    console.log(error);
 
     return res.status(500).json({
       success: false,
@@ -884,7 +885,7 @@ export const getAgentDashboard = async (req: request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error(error);
+    console.log(error);
 
     return res.status(500).json({
       success: false,

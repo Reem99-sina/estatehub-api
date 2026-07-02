@@ -84,7 +84,7 @@ export const createBookingPayment = async (req: request, res: Response) => {
       checkoutUrl: session.url,
     });
   } catch (error) {
-    console.error(error);
+    console.log(error);
 
     return res.status(500).json({
       success: false,
@@ -170,7 +170,7 @@ export const createSubscriptionPayment = async (
       checkoutUrl: session.url,
     });
   } catch (error) {
-    console.error(error);
+    console.log(error);
 
     return res.status(500).json({
       success: false,
@@ -292,7 +292,7 @@ export const stripeWebhook = async (req: request, res: Response) => {
       received: true,
     });
   } catch (err: any) {
-    console.error(err);
+    console.log(err);
 
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
@@ -318,7 +318,7 @@ export const getPaymentHistory = async (req: request, res: Response) => {
       data: payments,
     });
   } catch (error) {
-    console.error(error);
+    console.log(error);
 
     return res.status(500).json({
       success: false,
@@ -352,7 +352,7 @@ export const getPaymentById = async (req: request, res: Response) => {
       data: payment,
     });
   } catch (error) {
-    console.error(error);
+    console.log(error);
 
     return res.status(500).json({
       success: false,
