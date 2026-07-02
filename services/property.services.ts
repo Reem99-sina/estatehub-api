@@ -208,7 +208,9 @@ export const getAdminProperties = async (req: request, res: Response) => {
       sort = "newest",
     } = req.query;
 
-    const filter: any = {};
+    const filter: any = {
+      
+    };
 
     if (city) {
       filter.city = {
@@ -315,7 +317,7 @@ export const getProperties = async (req: request, res: Response) => {
     } = req.query;
 
     const filter: any = {
-      isApproved: false,
+      isApproved: true,
     };
 
     if (city) {
@@ -407,104 +409,25 @@ export const getProperties = async (req: request, res: Response) => {
   }
 };
 
-export const getFeaturedProperties = async (req: request, res: Response) => {
+export const getFeaturedProperties = async (
+  req: request,
+  res: Response
+) => {
   try {
-    const {
-      city,
-      purpose,
-      category,
-      minPrice,
-      maxPrice,
-      bedrooms,
-      bathrooms,
-      page = "1",
-      limit = "10",
-      sort = "newest",
-    } = req.query;
+    const { limit = "8" } = req.query;
 
-    const filter: any = {
-      isApproved: false,
-    };
-
-    if (city) {
-      filter.city = {
-        $regex: city,
-        $options: "i",
-      };
-    }
-
-    if (purpose) {
-      filter.purpose = purpose;
-    }
-
-    if (category) {
-      filter.category = category;
-    }
-
-    if (bedrooms) {
-      filter.bedrooms = {
-        $gte: Number(bedrooms),
-      };
-    }
-
-    if (bathrooms) {
-      filter.bathrooms = {
-        $gte: Number(bathrooms),
-      };
-    }
-
-    if (minPrice || maxPrice) {
-      filter.price = {};
-
-      if (minPrice) filter.price.$gte = Number(minPrice);
-
-      if (maxPrice) filter.price.$lte = Number(maxPrice);
-    }
-
-    let sortOption: any = {};
-
-    switch (sort) {
-      case "price_asc":
-        sortOption.price = 1;
-        break;
-
-      case "price_desc":
-        sortOption.price = -1;
-        break;
-
-      case "oldest":
-        sortOption.createdAt = 1;
-        break;
-
-      case "most_viewed":
-        sortOption.viewsCount = -1;
-        break;
-
-      case "highest_rated":
-        sortOption.averageRating = -1;
-        break;
-
-      default:
-        sortOption.createdAt = -1;
-    }
-
-    const currentPage = Number(page);
-    const pageSize = Number(limit);
-
-    const total = await Property.countDocuments(filter);
-
-    const properties = await Property.find(filter)
+    const properties = await Property.find({
+      featured: true,
+      isApproved: true,
+    })
       .populate("owner", "name avatar")
       .populate("category", "name")
-      .sort(sortOption)
-      .skip((currentPage - 1) * pageSize)
-      .limit(pageSize);
+      .sort({ createdAt: -1 })
+      .limit(Number(limit));
 
-    return res.json({
+    return res.status(200).json({
       success: true,
-      total,
-      page: currentPage,
-      pages: Math.ceil(total / pageSize),
+      count: properties.length,
       data: properties,
     });
   } catch (error: any) {
