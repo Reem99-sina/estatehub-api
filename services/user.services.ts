@@ -11,17 +11,21 @@ import Booking from "../models/booking.model";
 import { UserRole } from "../type/user";
 import Message from "../models/message.model";
 import { BookingStatus } from "../type/booking";
+import fs from "fs";
 
 export const signup = async (req: Request, res: Response) => {
   try {
     const { name, email, password, role } = req.body;
-    const avatar = req.file
-      ? `uploads/avatars/${req.file.filename}`
-      : "";
+    const avatar = req.file ? `uploads/avatars/${req.file.filename}` : "";
 
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
+      // Delete uploaded avatar
+      if (req.file) {
+        await fs.unlink(req.file.path,()=>{})
+      }
+
       if (existingUser.isVerified) {
         return res.status(409).json({
           success: false,
@@ -29,10 +33,11 @@ export const signup = async (req: Request, res: Response) => {
         });
       }
 
-      // User exists but isn't verified
       const code = generateCode();
 
       existingUser.verifyCode = code;
+      existingUser.isVerified = false;
+
       await existingUser.save();
 
       await sendVerificationEmail(existingUser.email, code);
@@ -52,8 +57,8 @@ export const signup = async (req: Request, res: Response) => {
       name,
       email,
       password,
-      avatar,
       role,
+      avatar,
       verifyCode: code,
       isVerified: false,
     });
@@ -67,6 +72,11 @@ export const signup = async (req: Request, res: Response) => {
       message: "User created successfully. Please verify your email.",
     });
   } catch (error: any) {
+    // Delete uploaded file if something failed after upload
+    if (req.file) {
+      await fs.unlink(req.file.path,()=>{});
+    }
+
     return res.status(500).json({
       success: false,
       message: error.message,
