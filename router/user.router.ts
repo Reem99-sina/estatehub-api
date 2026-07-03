@@ -36,7 +36,7 @@ const router = express.Router();
 
 router.post(
   "/signup",
-  myMulter("avatars", fileType.IMAGE).single("avatar"),
+  myMulter(fileType.IMAGE).single("avatar"),
   validate(signupSchema),
   signup,
 );

@@ -12,22 +12,17 @@ import { UserRole } from "../type/user";
 import Message from "../models/message.model";
 import { BookingStatus } from "../type/booking";
 import fs from "fs";
+import { uploadToCloudinary } from "../lib/fileCloudinary";
 
 export const signup = async (req: Request, res: Response) => {
   try {
     const { name, email, password, role } = req.body;
-    const avatar = req.file ? `uploads/avatars/${req.file.filename}` : "";
+    // const avatar = req.file ? `uploads/avatars/${req.file.filename}` : "";
 
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
       // Delete uploaded avatar
-      if (req.file) {
-        console.log(req.file.path, "req.file.path");
-        fs.unlink(req.file.path, (res) => {
-          console.log(res, "res");
-        });
-      }
 
       if (existingUser.isVerified) {
         return res.status(409).json({
@@ -55,6 +50,11 @@ export const signup = async (req: Request, res: Response) => {
     }
 
     const code = generateCode();
+    let avatar = "";
+
+    if (req.file) {
+      avatar = await uploadToCloudinary(req.file, "estatehub/avatars");
+    }
 
     const user = await User.create({
       name,

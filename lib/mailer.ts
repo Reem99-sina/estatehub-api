@@ -1,8 +1,6 @@
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
-import dns from "node:dns";
 
-dns.setDefaultResultOrder("ipv4first");
 dotenv.config();
 
 export function generateCode() {
@@ -10,18 +8,19 @@ export function generateCode() {
 }
 
 export const sendVerificationEmail = async (email: string, code?: string) => {
-  const { SMTP_HOST, EMAIL_USER, PASSWORD_SECRET, SMTP_PORT } = process.env;
+  const {
+    SMTP_HOST,
+    EMAIL_USER,
+    PASSWORD_SECRET,
+    SMTP_PORT,
+  } = process.env;
 
   if (!SMTP_HOST || !EMAIL_USER || !PASSWORD_SECRET) {
-    throw new Error(
-      "Missing SMTP env vars: SMTP_HOST, EMAIL_USER, PASSWORD_SECRET",
-    );
+    throw new Error("Missing SMTP env vars: SMTP_HOST, EMAIL_USER, PASSWORD_SECRET");
   }
 
   const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
+   service: "gmail",
     auth: {
       user: EMAIL_USER,
       pass: PASSWORD_SECRET,
@@ -29,7 +28,7 @@ export const sendVerificationEmail = async (email: string, code?: string) => {
   });
 
   await transporter.sendMail({
-    from: `"Chat App" <${EMAIL_USER}>`, // أو استخدم SMTP_FROM لو Brevo يفضله
+    from: `"EstateHub App" <${EMAIL_USER}>`, // أو استخدم SMTP_FROM لو Brevo يفضله
     to: email,
     subject: "Verify your email",
     html: `

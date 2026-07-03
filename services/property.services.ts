@@ -4,6 +4,7 @@ import { request } from "../type/express";
 import { UserRole } from "../type/user";
 import { createNotification } from "./notification.services";
 import { NotificationType } from "../type/notification";
+import { uploadMultipleToCloudinary } from "../lib/uploadMultipleToCloudinary";
 
 export const addProperties = async (req: request, res: Response) => {
   try {
@@ -36,11 +37,15 @@ export const addProperties = async (req: request, res: Response) => {
       coordinates: [Number(parsedLocation.lng), Number(parsedLocation.lat)],
     };
 
-    const images =
-      (req.files as Express.Multer.File[])?.map((file) => ({
-        url: `uploads/images/${file.filename}`,
-        public_id: file.filename,
-      })) || [];
+    let images: Array<{ url?: string; public_id?: string }> = [];
+
+    if (req.files && Array.isArray(req.files)) {
+      const uploadedImages = await uploadMultipleToCloudinary(
+        req.files,
+        "estatehub/properties",
+      );
+      images = uploadedImages.map((url) => ({ url }));
+    }
 
     const property = await Property.create({
       title,
@@ -122,13 +127,13 @@ export const updateProperty = async (req: request, res: Response) => {
     //       : data.amenities;
     // }
 
-    if (req.files && (req.files as Express.Multer.File[]).length) {
-      const newImages = (req.files as Express.Multer.File[]).map((file) => ({
-        url: `uploads/images/${file.filename}`,
-        public_id: file.filename,
-      }));
+    if (req.files && Array.isArray(req.files)) {
+      const newImages = await uploadMultipleToCloudinary(
+        req.files,
+        "estatehub/properties",
+      );
 
-      data.images = [...property.images, ...newImages];
+      data.images = newImages;
     }
 
     // if (data.price && Number(data.price) !== property.price) {
@@ -208,9 +213,7 @@ export const getAdminProperties = async (req: request, res: Response) => {
       sort = "newest",
     } = req.query;
 
-    const filter: any = {
-      
-    };
+    const filter: any = {};
 
     if (city) {
       filter.city = {
@@ -409,10 +412,7 @@ export const getProperties = async (req: request, res: Response) => {
   }
 };
 
-export const getFeaturedProperties = async (
-  req: request,
-  res: Response
-) => {
+export const getFeaturedProperties = async (req: request, res: Response) => {
   try {
     const { limit = "8" } = req.query;
 

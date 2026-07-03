@@ -27,7 +27,7 @@ const router = express.Router();
 router.post(
   "/",
   auth([UserRole.ADMIN, UserRole.AGENT]),
-  myMulter("images", fileType.IMAGE).array("images", 10),
+  myMulter(fileType.IMAGE).array("images", 10),
   parseFormData,
   validate(addPropertySchema),
   addProperties,
@@ -35,7 +35,7 @@ router.post(
 router.patch(
   "/:propertyId",
   auth([UserRole.ADMIN, UserRole.AGENT]),
-  myMulter("images", fileType.IMAGE).array("images", 10),
+  myMulter(fileType.IMAGE).array("images", 10),
   parseFormData,
   validate(propertyIdSchema, "params"),
   validate(updatePropertySchema),
