@@ -16,6 +16,7 @@ import {
   getAdminProperties,
   getFeaturedProperties,
   getProperties,
+  getPropertiesById,
   togglePropertyApproval,
   updateProperty,
 } from "../services/property.services";
@@ -49,6 +50,7 @@ router.get(
 );
 router.get("/",updateSearchPreferences, getProperties);
 router.get("/featured", getFeaturedProperties);
+router.get("/:id", getPropertiesById);
 
 router.get("/compare", compareProperties);
 router.delete("/:id", auth([UserRole.ADMIN, UserRole.AGENT]), deleteProperty);

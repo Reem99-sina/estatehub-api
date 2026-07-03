@@ -438,6 +438,30 @@ export const getFeaturedProperties = async (req: request, res: Response) => {
   }
 };
 
+export const getPropertiesById = async (req: request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const properties = await Property.findOne({
+      _id:id,
+      isApproved: true,
+    })
+      .populate("owner", "name avatar")
+      .populate("category", "name")
+      .sort({ createdAt: -1 })
+
+    return res.status(200).json({
+      success: true,
+      
+      data: properties,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 export const compareProperties = async (req: Request, res: Response) => {
   try {
     const ids = (req.query.ids as string)?.split(",");
