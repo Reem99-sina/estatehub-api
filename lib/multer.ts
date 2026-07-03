@@ -1,7 +1,6 @@
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { nanoid } from "nanoid";
 
 export const fileType = {
   IMAGE: ["image/jpeg", "image/jpg", "image/png"],
@@ -24,7 +23,7 @@ export const myMulter = (
     },
 
     filename(req, file, cb) {
-      cb(null, `${nanoid()}-${file.originalname}`);
+      cb(null, `${new Date().getTime()}-${file.originalname}`);
     },
   });
 

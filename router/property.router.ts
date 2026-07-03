@@ -21,6 +21,7 @@ import {
 } from "../services/property.services";
 import { parseFormData } from "../middleware/progress";
 import { propertyIdSchema } from "../validations/user.validation";
+import { updateSearchPreferences } from "../middleware/preferences";
 const router = express.Router();
 
 router.post(
@@ -46,7 +47,7 @@ router.get(
   auth([UserRole.ADMIN, UserRole.AGENT]),
   getAdminProperties,
 );
-router.get("/", getProperties);
+router.get("/",updateSearchPreferences, getProperties);
 router.get("/featured", getFeaturedProperties);
 
 router.get("/compare", compareProperties);

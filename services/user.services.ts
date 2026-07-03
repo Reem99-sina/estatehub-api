@@ -332,6 +332,23 @@ export const addToFavorites = async (req: request, res: Response) => {
           favoritesCount: 1,
         },
       });
+      const property = await Property.findById(propertyId).populate("category");
+
+      if (property) {
+        await User.findByIdAndUpdate(req.user!._id, {
+          $addToSet: {
+            "preferences.cities": property.city,
+            "preferences.propertyTypes": (property.category as any).name,
+          },
+          $min: {
+            "preferences.minPrice": property.price,
+          },
+          $max: {
+            "preferences.maxPrice": property.price,
+            "preferences.bedrooms": property.bedrooms,
+          },
+        });
+      }
     }
 
     res.json({

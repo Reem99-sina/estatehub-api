@@ -34,9 +34,10 @@ app.use("/subscription", Routercollection.subscriptionRouter);
 app.use("/category", Routercollection.categoryRouter);
 
 // Database
-connectdb();
+connectdb().then(() => {
+  seedCategories();
+});
 
-seedCategories();
 // Server
 const PORT: number = Number(process.env.PORT) || 5000;
 
