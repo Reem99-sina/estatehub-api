@@ -486,7 +486,7 @@ export const addRecentlyViewed = async (req: request, res: Response) => {
       await Property.findByIdAndUpdate(propertyId, {
         $inc: {
           favoritesCount: 1,
-          viewsCount:1
+          viewsCount: 1,
         },
       });
     }
@@ -902,6 +902,23 @@ export const getAgentDashboard = async (req: request, res: Response) => {
         earnings: earningsResult[0]?.total || 0,
         unreadMessages,
       },
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const getAgents = async (req: request, res: Response) => {
+  try {
+    const users=await User.find({role:UserRole?.AGENT})
+    return res.status(200).json({
+      success: true,
+      data:users,
     });
   } catch (error) {
     console.log(error);

@@ -8,6 +8,7 @@ import {
   getAdminAnalytics,
   getAdminDashboard,
   getAgentDashboard,
+  getAgents,
   getFavorites,
   getMe,
   getPreferences,
@@ -30,8 +31,8 @@ import {
   signupSchema,
   verifyEmailSchema,
 } from "../validations/user.validation";
-
 import express from "express";
+
 const router = express.Router();
 
 router.post(
@@ -97,6 +98,11 @@ router.get(
   "/analytics/agent",
   auth([UserRole.ADMIN, UserRole.AGENT]),
   getAgentDashboard,
+);
+
+router.get(
+  "/agents",
+  getAgents,
 );
 
 export default router;
