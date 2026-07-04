@@ -486,6 +486,7 @@ export const addRecentlyViewed = async (req: request, res: Response) => {
       await Property.findByIdAndUpdate(propertyId, {
         $inc: {
           favoritesCount: 1,
+          viewsCount:1
         },
       });
     }
