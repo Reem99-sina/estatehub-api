@@ -493,7 +493,7 @@ export const addRecentlyViewed = async (req: request, res: Response) => {
 
     res.json({
       success: true,
-      data: user?.recentlyViewed,
+      data: propertyId,
     });
   } catch (error: any) {
     res.status(500).json({
