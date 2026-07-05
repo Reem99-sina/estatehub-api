@@ -28,20 +28,22 @@ export const initSocket = (server: HttpServer) => {
       socket.join(userId);
     });
 
-    socket.on(
-      "typing",
-      ({ receiverId }: { receiverId: string }) => {
-        socket.to(receiverId).emit("typing");
-      }
-    );
+    socket.on("typing", ({ receiverId }: { receiverId: string }) => {
+      socket.to(receiverId).emit("typing");
+    });
 
-    socket.on(
-      "stopTyping",
-      ({ receiverId }: { receiverId: string }) => {
-        socket.to(receiverId).emit("stopTyping");
-      }
-    );
+    socket.on("stopTyping", ({ receiverId }: { receiverId: string }) => {
+      socket.to(receiverId).emit("stopTyping");
+    });
 
+    socket.on("sendMessage", async (data) => {
+      const message = await Message.create(data);
+
+      io.to(data.receiverId).emit("receiveMessage", message);
+
+      socket.emit("receiveMessage", message);
+    });
+    
     socket.on(
       "messageRead",
       async ({
@@ -59,7 +61,7 @@ export const initSocket = (server: HttpServer) => {
         io.to(senderId).emit("messageRead", {
           messageId,
         });
-      }
+      },
     );
 
     socket.on("disconnect", async () => {
@@ -82,10 +84,7 @@ export const getIO = () => {
   return io;
 };
 
-async function updateUserStatus(
-  userId: string,
-  online: boolean
-) {
+async function updateUserStatus(userId: string, online: boolean) {
   try {
     await User.findByIdAndUpdate(userId, {
       isOnline: online,
