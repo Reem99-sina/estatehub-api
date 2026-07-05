@@ -3,6 +3,7 @@ import { auth } from "../middleware/auth";
 import { UserRole } from "../type/user";
 import {
   getConversation,
+  getConversationUserId,
   getUnreadCount,
   markMessageAsRead,
   messageAdd,
@@ -34,4 +35,7 @@ router.patch(
   validate(markMessageAsReadSchema, "params"),
   markMessageAsRead,
 );
+
+router.post("/conversation",auth(Object.values(UserRole)),getConversationUserId)
+
 export default router;

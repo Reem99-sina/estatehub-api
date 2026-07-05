@@ -5,6 +5,8 @@ import { NotificationType } from "../type/notification";
 import Message from "../models/message.model";
 import Notification from "../models/notification.model";
 import { getIO } from "../lib/socket";
+import User from "../models/user.model";
+import mongoose from "mongoose";
 
 export const messageAdd = async (req: request, res: Response) => {
   try {
@@ -132,6 +134,125 @@ export const getUnreadCount = async (req: request, res: Response) => {
       unread: count,
     });
   } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
+  }
+};
+
+export const getConversationUserId = async (req: request, res: Response) => {
+  try {
+    const currentUser = req.user?._id;
+    const existUser = await User.findById(currentUser);
+    if (!existUser) {
+      return res.status(404).json({
+        success: false,
+        message: "user not found.",
+      });
+    }
+    const conversations = await Message.aggregate([
+      {
+        $match: {
+          $or: [
+            { sender: new mongoose.Types.ObjectId(currentUser) },
+            { receiver: new mongoose.Types.ObjectId(currentUser) },
+          ],
+        },
+      },
+
+      // Create a unique conversation key regardless of sender/receiver order
+      {
+        $addFields: {
+          conversationKey: {
+            $cond: [
+              { $lt: ["$sender", "$receiver"] },
+              {
+                $concat: [
+                  { $toString: "$sender" },
+                  "_",
+                  { $toString: "$receiver" },
+                ],
+              },
+              {
+                $concat: [
+                  { $toString: "$receiver" },
+                  "_",
+                  { $toString: "$sender" },
+                ],
+              },
+            ],
+          },
+        },
+      },
+
+      // Latest message first
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+
+      // Group messages by conversation
+      {
+        $group: {
+          _id: "$conversationKey",
+
+          lastMessage: {
+            $first: "$$ROOT",
+          },
+
+          messages: {
+            $push: "$$ROOT",
+          },
+        },
+      },
+
+      // Populate sender
+      {
+        $lookup: {
+          from: "users",
+          localField: "lastMessage.sender",
+          foreignField: "_id",
+          as: "sender",
+        },
+      },
+
+      // Populate receiver
+      {
+        $lookup: {
+          from: "users",
+          localField: "lastMessage.receiver",
+          foreignField: "_id",
+          as: "receiver",
+        },
+      },
+
+      {
+        $unwind: "$sender",
+      },
+
+      {
+        $unwind: "$receiver",
+      },
+
+      {
+        $project: {
+          _id: 0,
+          sender: 1,
+          receiver: 1,
+          lastMessage: 1,
+          messages: 1,
+        },
+      },
+    ]);
+     return res.status(200).json({
+      success: true,
+      conversations: conversations,
+    });
+   } catch (error) {
     console.log(error);
 
     return res.status(500).json({

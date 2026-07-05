@@ -46,7 +46,6 @@ router.post("/signin", validate(signinSchema), signin);
 
 router.post("/verify-email", validate(verifyEmailSchema), verifyEmail);
 router.post("/resend-verification", validate(resendCodeSchema), resendCode);
-
 router.post("/forgot-password", validate(forgotPasswordSchema), forgotPassword);
 
 router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
