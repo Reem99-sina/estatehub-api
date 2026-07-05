@@ -36,6 +36,6 @@ router.patch(
   markMessageAsRead,
 );
 
-router.post("/conversation",auth(Object.values(UserRole)),getConversationUserId)
+router.get("/conversation",auth(Object.values(UserRole)),getConversationUserId)
 
 export default router;
