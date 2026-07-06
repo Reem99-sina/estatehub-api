@@ -14,6 +14,7 @@ import {
   createMessageSchema,
   markMessageAsReadSchema,
 } from "../validations/message.validation";
+
 const router = express.Router();
 
 router.post(
@@ -22,20 +23,27 @@ router.post(
   validate(createMessageSchema),
   messageAdd,
 );
+
 router.get("/unread/count", auth(Object.values(UserRole)), getUnreadCount);
+
+router.get(
+  "/conversation",
+  auth(Object.values(UserRole)),
+  getConversationUserId,
+);
+
 router.get(
   "/:userId",
   auth(Object.values(UserRole)),
   validate(conversationSchema, "params"),
   getConversation,
 );
+
 router.patch(
   "/:id/read",
   auth(Object.values(UserRole)),
   validate(markMessageAsReadSchema, "params"),
   markMessageAsRead,
 );
-
-router.get("/conversation",auth(Object.values(UserRole)),getConversationUserId)
 
 export default router;
