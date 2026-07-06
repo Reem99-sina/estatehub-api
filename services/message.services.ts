@@ -191,7 +191,7 @@ export const getConversationUserId = async (req: request, res: Response) => {
       // Latest message first
       {
         $sort: {
-          createdAt: -1,
+          createdAt: 1,
         },
       },
 
