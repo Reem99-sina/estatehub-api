@@ -7,29 +7,41 @@ import Notification from "../models/notification.model";
 import { getIO } from "../lib/socket";
 import User from "../models/user.model";
 import mongoose from "mongoose";
+import conversationModel from "../models/conversation.model";
 
 export const messageAdd = async (req: request, res: Response) => {
   try {
-    const sender = req.user?._id;
+    const sender = req.user!._id;
     const { receiver, property, message } = req.body;
 
-    if (!receiver || !message) {
-      return res.status(400).json({
-        success: false,
-        message: "Receiver and message are required.",
+    let conversation = await conversationModel.findOne({
+      participants: {
+        $all: [sender, receiver],
+      },
+    });
+
+    if (!conversation) {
+      conversation = await conversationModel.create({
+        participants: [sender, receiver],
       });
     }
 
     const newMessage = await Message.create({
+      conversation: conversation._id,
       sender,
       receiver,
       property,
       message,
     });
+
+    conversation.lastMessage = newMessage._id;
+    conversation.lastMessageText = message;
+    conversation.lastMessageAt = newMessage.createdAt;
+
+    await conversation.save();
     const io = getIO();
 
     io.to(receiver.toString()).emit("newMessage", newMessage);
-    // Create notification for the receiver
     const notification = await Notification.create({
       user: receiver,
       title: "New Message",
@@ -54,29 +66,26 @@ export const messageAdd = async (req: request, res: Response) => {
 
 export const getConversation = async (req: request, res: Response) => {
   try {
-    const currentUser = req.user?._id;
-    const { userId } = req.params;
+    const conversation = await conversationModel.findById(req.params.id);
+
+    if (!conversation) {
+      return res.status(404).json({
+        success: false,
+        message: "Conversation not found",
+      });
+    }
 
     const messages = await Message.find({
-      $or: [
-        {
-          sender: currentUser,
-          receiver: userId,
-        },
-        {
-          sender: userId,
-          receiver: currentUser,
-        },
-      ],
+      conversation: conversation._id,
     })
-      .populate("sender", "name email avatar")
-      .populate("receiver", "name email avatar")
+      .populate("sender", "name email avatar isOnline")
+      .populate("receiver", "name email avatar isOnline")
       .populate("property", "title images")
       .sort({ createdAt: 1 });
 
     return res.status(200).json({
       success: true,
-      count: messages.length,
+      count: messages?.map((ele) => !ele?.isRead)?.length,
       data: messages,
     });
   } catch (error) {
@@ -153,106 +162,36 @@ export const getConversationUserId = async (req: request, res: Response) => {
         message: "user not found.",
       });
     }
-    const conversations = await Message.aggregate([
-      {
-        $match: {
-          $or: [
-            { sender: new mongoose.Types.ObjectId(currentUser) },
-            { receiver: new mongoose.Types.ObjectId(currentUser) },
-          ],
-        },
-      },
-
-      // Create a unique conversation key regardless of sender/receiver order
-      {
-        $addFields: {
-          conversationKey: {
-            $cond: [
-              { $lt: ["$sender", "$receiver"] },
-              {
-                $concat: [
-                  { $toString: "$sender" },
-                  "_",
-                  { $toString: "$receiver" },
-                ],
-              },
-              {
-                $concat: [
-                  { $toString: "$receiver" },
-                  "_",
-                  { $toString: "$sender" },
-                ],
-              },
-            ],
+    const conversations = await conversationModel
+      .find({
+        participants: currentUser,
+      })
+      .populate("participants", "name email avatar isOnline")
+      .populate({
+        path: "lastMessage",
+        populate: [
+          {
+            path: "sender",
+            select: "name email avatar isOnline",
           },
-        },
-      },
-
-      // Latest message first
-      {
-        $sort: {
-          createdAt: 1,
-        },
-      },
-
-      // Group messages by conversation
-      {
-        $group: {
-          _id: "$conversationKey",
-
-          lastMessage: {
-            $first: "$$ROOT",
+          {
+            path: "receiver",
+            select: "name email avatar isOnline",
           },
-
-          messages: {
-            $push: "$$ROOT",
+          {
+            path: "property",
+            select: "title images",
           },
-        },
-      },
-
-      // Populate sender
-      {
-        $lookup: {
-          from: "users",
-          localField: "lastMessage.sender",
-          foreignField: "_id",
-          as: "sender",
-        },
-      },
-
-      // Populate receiver
-      {
-        $lookup: {
-          from: "users",
-          localField: "lastMessage.receiver",
-          foreignField: "_id",
-          as: "receiver",
-        },
-      },
-
-      {
-        $unwind: "$sender",
-      },
-
-      {
-        $unwind: "$receiver",
-      },
-
-      {
-        $project: {
-          _id: 0,
-          sender: 1,
-          receiver: 1,
-          lastMessage: 1,
-          messages: 1,
-        },
-      },
-    ]);
-     return res.status(200).json({
+        ],
+      })
+      .sort({
+        lastMessageAt: -1,
+      });
+    return res.status(200).json({
       success: true,
       conversations: conversations,
     });
-   } catch (error) {
+  } catch (error) {
     console.log(error);
 
     return res.status(500).json({

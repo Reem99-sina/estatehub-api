@@ -33,7 +33,7 @@ router.get(
 );
 
 router.get(
-  "/:userId",
+  "/:id",
   auth(Object.values(UserRole)),
   validate(conversationSchema, "params"),
   getConversation,

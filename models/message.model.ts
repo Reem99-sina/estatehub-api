@@ -4,6 +4,11 @@ import { IMessage } from "../type/message";
 
 const messageSchema = new Schema<IMessage>(
   {
+      conversation: {
+        type: Schema.Types.ObjectId,
+        ref: "Conversation",
+        required: true
+    },
     sender: {
       type: Schema.Types.ObjectId,
       ref: "User",

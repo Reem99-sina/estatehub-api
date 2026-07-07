@@ -28,7 +28,10 @@ export const initSocket = (server: HttpServer) => {
       socket.join(userId);
     });
 
-    socket.on("typing", ({ receiverId }: { receiverId: string }) => {
+    socket.on("typing", ({ receiverId }) => {
+      console.log("✅ typing received");
+      console.log("receiverId =", receiverId);
+
       socket.to(receiverId).emit("typing");
     });
 
@@ -36,14 +39,23 @@ export const initSocket = (server: HttpServer) => {
       socket.to(receiverId).emit("stopTyping");
     });
 
-    socket.on("sendMessage", async (data) => {
-      const message = await Message.create(data);
+    socket.on("sendMessage", async ({ receiverId, message }) => {
+      try {
+        const sender = socket.handshake.query.userId as string;
 
-      io.to(data.receiverId).emit("receiveMessage", message);
+        const newMessage = await Message.create({
+          sender,
+          receiver: receiverId,
+          message,
+        });
 
-      socket.emit("receiveMessage", message);
+        io.to(receiverId).emit("receiveMessage", newMessage);
+        socket.emit("receiveMessage", newMessage);
+      } catch (err) {
+        console.error(err);
+      }
     });
-    
+
     socket.on(
       "messageRead",
       async ({
@@ -53,6 +65,7 @@ export const initSocket = (server: HttpServer) => {
         messageId: string;
         senderId: string;
       }) => {
+        console.log(senderId,messageId,'s')
         await Message.findByIdAndUpdate(messageId, {
           isRead: true,
           readAt: new Date(),

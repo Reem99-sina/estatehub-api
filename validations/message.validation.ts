@@ -18,7 +18,7 @@ export const createMessageSchema = z.object({
 });
 
 export const conversationSchema = z.object({
-  userId: objectId,
+  id: objectId,
 });
 
 export const markMessageAsReadSchema = z.object({
