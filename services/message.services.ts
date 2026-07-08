@@ -52,7 +52,7 @@ export const messageAdd = async (req: request, res: Response) => {
     return res.status(201).json({
       success: true,
       message: "Message sent successfully.",
-      data: newMessage,
+      data: conversation,
     });
   } catch (error) {
     console.log(error);
