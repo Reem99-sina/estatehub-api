@@ -2,25 +2,28 @@
 import { Express } from "express";
 import cloudinary from "./cloudinary";
 
+type UploadedImage = {
+  url: string;
+  publicId: string;
+};
+
 export const uploadMultipleToCloudinary = async (
   files: Express.Multer.File[],
   folder = "estatehub/properties",
-): Promise<string[]> => {
+): Promise<UploadedImage[]> => {
   const uploads = files.map((file) => {
-    return new Promise<string>((resolve, reject) => {
+    return new Promise<UploadedImage>((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
-        {
-          folder,
-        },
+        { folder },
         (error, result) => {
           if (error) return reject(error);
+          if (!result) return reject(new Error("Upload failed"));
 
-          if (!result) {
-            return reject(new Error("Upload failed"));
-          }
-
-          resolve(result.secure_url);
-        },
+          resolve({
+            url: result.secure_url,
+            publicId: result.public_id,
+          });
+        }
       );
 
       stream.end(file.buffer);

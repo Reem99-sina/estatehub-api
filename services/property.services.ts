@@ -44,7 +44,7 @@ export const addProperties = async (req: request, res: Response) => {
         req.files,
         "estatehub/properties",
       );
-      images = uploadedImages.map((url) => ({ url }));
+     images = uploadedImages;
     }
 
     const property = await Property.create({
@@ -133,7 +133,7 @@ export const updateProperty = async (req: request, res: Response) => {
         "estatehub/properties",
       );
 
-      data.images = newImages;
+      data.images = [...property.images, ...newImages];
     }
 
     // if (data.price && Number(data.price) !== property.price) {
@@ -443,16 +443,16 @@ export const getPropertiesById = async (req: request, res: Response) => {
     const { id } = req.params;
 
     const properties = await Property.findOne({
-      _id:id,
+      _id: id,
       isApproved: true,
     })
       .populate("owner", "name avatar")
       .populate("category", "name")
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1 });
 
     return res.status(200).json({
       success: true,
-      
+
       data: properties,
     });
   } catch (error: any) {
