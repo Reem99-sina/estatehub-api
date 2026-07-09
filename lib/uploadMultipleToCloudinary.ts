@@ -4,7 +4,7 @@ import cloudinary from "./cloudinary";
 
 type UploadedImage = {
   url: string;
-  publicId: string;
+  public_id: string;
 };
 
 export const uploadMultipleToCloudinary = async (
@@ -21,7 +21,7 @@ export const uploadMultipleToCloudinary = async (
 
           resolve({
             url: result.secure_url,
-            publicId: result.public_id,
+            public_id: result.public_id,
           });
         }
       );

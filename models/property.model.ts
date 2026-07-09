@@ -91,7 +91,7 @@ const propertySchema = new Schema<IProperty>(
         },
         public_id: {
           type: String,
-          required: true,
+          required: false,
         },
       },
     ],
