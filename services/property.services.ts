@@ -444,7 +444,6 @@ export const getPropertiesById = async (req: request, res: Response) => {
 
     const properties = await Property.findOne({
       _id: id,
-      isApproved: true,
     })
       .populate("owner", "name avatar")
       .populate("category", "name")
