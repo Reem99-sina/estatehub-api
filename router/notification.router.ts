@@ -16,7 +16,7 @@ router.get("/", auth(Object.values(UserRole)), getNotifications);
 router.patch(
   "/:id/read",
   auth(Object.values(UserRole)),
-  validate(notificationIdSchema),
+  validate(notificationIdSchema,'params'),
   markNotificationAsRead,
 );
 
